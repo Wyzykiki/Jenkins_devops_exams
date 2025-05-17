@@ -11,15 +11,13 @@ pipeline {
             parallel {
                 stage('Build Movie Service') {
                     steps {
-                        sh 'docker build -f ./movie-service/Dockerfile -t $DOCKER_ID/movie-service:$DOCKER_TAG ./movie-service'
-                        sh 'docker build -f ./movie-service/Dockerfile -t $DOCKER_ID/movie-service:latest ./movie-service'
+                        sh 'docker build -f ./movie-service/Dockerfile -t $DOCKER_ID/movie-service:$DOCKER_TAG -t $DOCKER_ID/movie-service:latest ./movie-service'
                     }
                 }
 
                 stage('Build Cast Service') {
                     steps {
-                        sh 'docker build -f ./cast-service/Dockerfile -t $DOCKER_ID/cast-service:$DOCKER_TAG ./cast-service'
-                        sh 'docker build -f ./cast-service/Dockerfile -t $DOCKER_ID/cast-service:latest ./cast-service'
+                        sh 'docker build -f ./cast-service/Dockerfile -t $DOCKER_ID/cast-service:$DOCKER_TAG -t $DOCKER_ID/cast-service:latest ./cast-service'
                     }
                 }
             }
@@ -62,7 +60,6 @@ pipeline {
 
             steps {
                 sh '''
-                echo "${GIT_BRANCH}"
                 rm -Rf .kube
                 mkdir .kube
                 ls
