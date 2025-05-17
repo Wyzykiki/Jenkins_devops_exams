@@ -48,16 +48,22 @@ pipeline {
                     }
                 }
             }
-
         }
 
         stage('Deploiement en dev') {
-            // environment
-            // {
-            // KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
-            // }
+            environment
+            {
+            KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            }
+
             steps {
-                sh 'helm upgrade --install jenkins-exam  charts/ --set environment=dev'
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                helm upgrade --install jenkins-exam  charts/ --set environment=dev
+                '''
             }
         }
 
