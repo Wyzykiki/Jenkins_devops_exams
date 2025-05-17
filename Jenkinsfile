@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Docker Push') {
+        stage('Docker Auth') {
             environment
             {
                 DOCKER_PASS = credentials("DOCKER_HUB_PASS")
@@ -32,7 +32,9 @@ pipeline {
             steps {
                 sh 'docker login -u $DOCKER_ID -p $DOCKER_PASS'
             }
+        }
 
+        stage('Docker Push') {
             parallel {
                 stage('Push Movie Service') {
                     steps {
