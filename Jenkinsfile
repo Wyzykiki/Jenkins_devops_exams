@@ -12,12 +12,14 @@ pipeline {
                 stage('Build Movie Service') {
                     steps {
                         sh 'docker build -f ./movie-service/Dockerfile -t $DOCKER_ID/movie-service:$DOCKER_TAG ./movie-service'
+                        sh 'docker build -f ./movie-service/Dockerfile -t $DOCKER_ID/movie-service:latest ./movie-service'
                     }
                 }
 
                 stage('Build Cast Service') {
                     steps {
                         sh 'docker build -f ./cast-service/Dockerfile -t $DOCKER_ID/cast-service:$DOCKER_TAG ./cast-service'
+                        sh 'docker build -f ./cast-service/Dockerfile -t $DOCKER_ID/cast-service:latest ./cast-service'
                     }
                 }
             }
@@ -67,53 +69,63 @@ pipeline {
             }
         }
 
-        // stage('Deploiement en staging') {
-        //     environment
-        //     {
-        //     KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
-        //     }
-        //         steps {
-        //             script {
-        //             sh '''
-        //             rm -Rf .kube
-        //             mkdir .kube
-        //             ls
-        //             cat $KUBECONFIG > .kube/config
-        //             cp fastapi/values.yaml values.yml
-        //             cat values.yml
-        //             sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-        //             helm upgrade --install app fastapi --values=values.yml --namespace staging
-        //             '''
-        //             }
-        //         }
+        stage('Deploiement en QA') {
+            environment
+            {
+            KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            }
 
-        // }
+            steps {
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                helm upgrade --install jenkins-exam  charts/ --set environment=qa
+                '''
+            }
+        }
 
-        // stage('Deploiement en prod') {
-        //     environment
-        //     {
-        //     KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
-        //     }
-        //         steps {
-        //         // Create an Approval Button with a timeout of 15minutes.
-        //         // this require a manuel validation in order to deploy on production environment
-        //                 timeout(time: 15, unit: "MINUTES") {
-        //                     input message: 'Do you want to deploy in production ?', ok: 'Yes'
-        //                 }
+        stage('Deploiement en staging') {
+            environment
+            {
+            KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            }
 
-        //             script {
-        //             sh '''
-        //             rm -Rf .kube
-        //             mkdir .kube
-        //             ls
-        //             cat $KUBECONFIG > .kube/config
-        //             cp fastapi/values.yaml values.yml
-        //             cat values.yml
-        //             sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-        //             helm upgrade --install app fastapi --values=values.yml --namespace prod
-        //             '''
-        //             }
-        //         }
-        // }
+            steps {
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                helm upgrade --install jenkins-exam  charts/ --set environment=staging
+                '''
+            }
+        }
+
+        stage('Deploiement en production') {
+            when {
+                branch 'master'
+            }
+
+            environment
+            {
+            KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            }
+
+            steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Do you want to deploy in production ?', ok: 'Yes'
+                }
+
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                helm upgrade --install jenkins-exam  charts/ --set environment=prod
+                '''
+            }
+        }
     }
 }
