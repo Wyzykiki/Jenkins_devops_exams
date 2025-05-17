@@ -4,7 +4,6 @@ metadata:
   name: cast-service
   labels:
     app: cast-service
-  namespace: {{ .Values.environment }}
 spec:
   selector:
     matchLabels:
@@ -31,7 +30,6 @@ metadata:
   name: movie-service
   labels:
     app: movie-service
-  namespace: {{ .Values.environment }}
 spec:
   selector:
     matchLabels:

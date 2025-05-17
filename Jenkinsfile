@@ -64,7 +64,7 @@ pipeline {
                 mkdir .kube
                 ls
                 cat $KUBECONFIG > .kube/config
-                helm upgrade --install jenkins-exam  charts/ --set environment=dev
+                helm upgrade --install jenkins-exam  charts/ --namespace dev
                 '''
             }
         }
@@ -81,7 +81,7 @@ pipeline {
                 mkdir .kube
                 ls
                 cat $KUBECONFIG > .kube/config
-                helm upgrade --install jenkins-exam  charts/ --set environment=qa
+                helm upgrade --install jenkins-exam  charts/ --namespace qa
                 '''
             }
         }
@@ -98,7 +98,7 @@ pipeline {
                 mkdir .kube
                 ls
                 cat $KUBECONFIG > .kube/config
-                helm upgrade --install jenkins-exam  charts/ --set environment=staging
+                helm upgrade --install jenkins-exam  charts/ --namespace staging
                 '''
             }
         }
@@ -123,7 +123,7 @@ pipeline {
                 mkdir .kube
                 ls
                 cat $KUBECONFIG > .kube/config
-                helm upgrade --install jenkins-exam  charts/ --set environment=prod
+                helm upgrade --install jenkins-exam  charts/ --namespace prod
                 '''
             }
         }
