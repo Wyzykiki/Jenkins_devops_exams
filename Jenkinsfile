@@ -41,12 +41,14 @@ pipeline {
                 stage('Push Movie Service') {
                     steps {
                         sh 'docker push $DOCKER_ID/movie-service:$DOCKER_TAG'
+                        sh 'docker push $DOCKER_ID/movie-service:latest'
                     }
                 }
 
                 stage('Push Cast Service') {
                     steps {
                         sh 'docker push $DOCKER_ID/cast-service:$DOCKER_TAG'
+                        sh 'docker push $DOCKER_ID/cast-service:latest'
                     }
                 }
             }
@@ -60,6 +62,7 @@ pipeline {
 
             steps {
                 sh '''
+                echo "${GIT_BRANCH}"
                 rm -Rf .kube
                 mkdir .kube
                 ls
@@ -105,7 +108,7 @@ pipeline {
 
         stage('Deploiement en production') {
             when {
-                branch 'master'
+                equals expected: 'origin/master', actual: "${GIT_BRANCH}"
             }
 
             environment
